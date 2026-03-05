@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OI + CVD + Price Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #0f1318;
+    --surface2: #151a22;
+    --border: #1e2730;
+    --bull: #00e5a0;
+    --bear: #ff3d6b;
+    --warn: #f5a623;
+    --neutral: #4a90d9;
+    --text: #e8edf5;
+    --muted: #5a6a7e;
+    --accent: #7c5cfc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 40px 24px;
+    background-image: 
+      radial-gradient(ellipse at 10% 0%, rgba(124,92,252,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(0,229,160,0.05) 0%, transparent 50%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  header .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  header h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  header h1 span { color: var(--accent); }
+
+  header p {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* SELECTOR */
+  .selector-wrap {
+    max-width: 680px;
+    margin: 0 auto 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+  }
+
+  .selector-wrap h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+
+  .selector-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .selector-group label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .btn-group {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .btn-group button {
+    flex: 1;
+    padding: 10px 4px;
+    background: var(--surface2);
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+  }
+
+  .btn-group button:last-child { border-right: none; }
+  .btn-group button:hover { background: #1e2730; color: var(--text); }
+
+  .btn-group button.active-up      { background: rgba(0,229,160,0.15);  color: var(--bull); }
+  .btn-group button.active-down    { background: rgba(255,61,107,0.15); color: var(--bear); }
+  .btn-group button.active-flat    { background: rgba(245,166,35,0.15); color: var(--warn); }
+  .btn-group button.active-newhigh { background: rgba(0,229,160,0.2);   color: var(--bull); font-size: 11px; }
+  .btn-group button.active-newlow  { background: rgba(255,61,107,0.2);  color: var(--bear); font-size: 11px; }
+  .btn-group button.active-none    { background: rgba(74,144,217,0.15); color: var(--neutral); }
+
+  /* context row — full width under the 3-col row */
+  .context-row {
+    margin-bottom: 20px;
+  }
+
+  .context-row label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .context-row .btn-group button {
+    font-size: 11px;
+    padding: 9px 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  /* context tag shown on cards */
+  .ctx-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .ctx-tag.newhigh { background: rgba(0,229,160,0.1);  color: var(--bull); border: 1px solid rgba(0,229,160,0.2); }
+  .ctx-tag.newlow  { background: rgba(255,61,107,0.1); color: var(--bear); border: 1px solid rgba(255,61,107,0.2); }
+  .ctx-tag.bounce  { background: rgba(74,144,217,0.1); color: var(--neutral); border: 1px solid rgba(74,144,217,0.2); }
+
+  .selector-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn-lookup {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-lookup:hover { opacity: 0.85; }
+
+  .btn-reset {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .btn-reset:hover { color: var(--text); border-color: #2a3545; }
+
+  /* RESULT BANNER */
+  .result-banner {
+    max-width: 680px;
+    margin: 0 auto 32px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .result-banner.show   { display: flex; }
+  .result-banner.bull   { background: rgba(0,229,160,0.08);   border: 1px solid rgba(0,229,160,0.25);   color: var(--bull); }
+  .result-banner.bear   { background: rgba(255,61,107,0.08);  border: 1px solid rgba(255,61,107,0.25);  color: var(--bear); }
+  .result-banner.warn   { background: rgba(245,166,35,0.08);  border: 1px solid rgba(245,166,35,0.25);  color: var(--warn); }
+  .result-banner.neutral{ background: rgba(74,144,217,0.08);  border: 1px solid rgba(74,144,217,0.25);  color: var(--neutral); }
+  .result-banner.none   { background: rgba(90,106,126,0.08);  border: 1px solid rgba(90,106,126,0.2);   color: var(--muted); }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s, opacity 0.3s, box-shadow 0.3s;
+  }
+
+  .card:hover { transform: translateY(-2px); border-color: #2a3545; }
+
+  .card.dimmed {
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .card.highlighted {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(124,92,252,0.2);
+    transform: translateY(-2px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .card.bull::before    { background: var(--bull); }
+  .card.bear::before    { background: var(--bear); }
+  .card.warn::before    { background: var(--warn); }
+  .card.neutral::before { background: var(--neutral); }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .badge.bull    { background: rgba(0,229,160,0.12);  color: var(--bull);    border: 1px solid rgba(0,229,160,0.2); }
+  .badge.bear    { background: rgba(255,61,107,0.12); color: var(--bear);    border: 1px solid rgba(255,61,107,0.2); }
+  .badge.warn    { background: rgba(245,166,35,0.12); color: var(--warn);    border: 1px solid rgba(245,166,35,0.2); }
+  .badge.neutral { background: rgba(74,144,217,0.12); color: var(--neutral); border: 1px solid rgba(74,144,217,0.2); }
+
+  .indicators { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .ind {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .ind span { font-weight: 700; margin-left: 2px; }
+  .ind span.up   { color: var(--bull); }
+  .ind span.down { color: var(--bear); }
+  .ind span.flat { color: var(--warn); }
+
+  .visual {
+    margin: 16px 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+  }
+
+  .visual-row { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
+  .visual-label { width: 50px; color: var(--muted); font-size: 11px; }
+
+  .arrow { font-size: 16px; }
+  .arrow.up   { color: var(--bull); }
+  .arrow.down { color: var(--bear); }
+  .arrow.flat { color: var(--warn); }
+
+  .visual-desc { color: var(--text); font-size: 11px; opacity: 0.7; }
+
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+  .card p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .outcome {
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    line-height: 1.5;
+  }
+
+  .outcome.bull    { background: rgba(0,229,160,0.07);  border-left: 3px solid var(--bull);    color: var(--bull); }
+  .outcome.bear    { background: rgba(255,61,107,0.07); border-left: 3px solid var(--bear);    color: var(--bear); }
+  .outcome.warn    { background: rgba(245,166,35,0.07); border-left: 3px solid var(--warn);    color: var(--warn); }
+  .outcome.neutral { background: rgba(74,144,217,0.07); border-left: 3px solid var(--neutral); color: var(--neutral); }
+
+  .section-title {
+    max-width: 1200px;
+    margin: 40px auto 16px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 56px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="label">Order Flow Analysis</div>
+  <h1>OI + CVD + Price<br><span>Cheat Sheet</span></h1>
+  <p>// Every scenario mapped to market structure</p>
+</header>
+
+<!-- SELECTOR -->
+<div class="selector-wrap">
+  <h2>// Select Current Market Conditions</h2>
+  <div class="selector-row">
+
+    <div class="selector-group">
+      <label>OI</label>
+      <div class="btn-group" id="grp-oi">
+        <button data-val="up"   onclick="select('oi','up',this)"   title="Up">↑</button>
+        <button data-val="down" onclick="select('oi','down',this)" title="Down">↓</button>
+        <button data-val="flat" onclick="select('oi','flat',this)" title="Flat">→</button>
+      </div>
+    </div>
+
+    <div class="selector-group">
+      <label>CVD</label>
+      <div class="btn-group" id="grp-cvd">
+        <button data-val="up"   onclick="select('cvd','up',this)"   title="Up">↑</button>
+        <button data-val="down" onclick="select('cvd','down',this)" title="Down">↓</button>
+        <button data-val="flat" onclick="select('cvd','flat',this)" title="Flat">→</button>
+      </div>
+    </div>
+
+    <div class="selector-group">
+      <label>Price</label>
+      <div class="btn-group" id="grp-price">
+        <button data-val="up"   onclick="select('price','up',this)"   title="Up">↑</button>
+        <button data-val="down" onclick="select('price','down',this)" title="Down">↓</button>
+        <button data-val="flat" onclick="select('price','flat',this)" title="Flat">→</button>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <div class="context-row">
+    <label>Spot CVD — optional: real demand vs speculative flow</label>
+    <div class="btn-group" id="grp-scvd">
+      <button data-val="up"   onclick="select('scvd','up',this)"   title="Spot CVD Up">↑ Up</button>
+      <button data-val="down" onclick="select('scvd','down',this)" title="Spot CVD Down">↓ Down</button>
+      <button data-val="flat" onclick="select('scvd','flat',this)" title="Spot CVD Flat">→ Flat</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="context-row">
+    <label>Price Context — did price just make a significant extreme?</label>
+    <div class="btn-group" id="grp-ctx">
+      <button data-val="newhigh" onclick="select('ctx','newhigh',this)" title="Just made new high">↑ New High</button>
+      <button data-val="newlow"  onclick="select('ctx','newlow',this)"  title="Just made new low">↓ New Low</button>
+      <button data-val="bounce"  onclick="select('ctx','bounce',this)"  title="Bouncing/recovering from extreme">↩ Bouncing</button>
+      <button data-val="none"    onclick="select('ctx','none',this)"    title="No special context">— None</button>
+    </div>
+  </div>
+
+  <div class="selector-actions">
+    <button class="btn-lookup" onclick="lookup()">Look Up Scenario</button>
+    <button class="btn-reset"  onclick="reset()">Reset</button>
+  </div>
+</div>
+
+<!-- RESULT BANNER -->
+<div class="result-banner" id="result-banner"></div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="dot" style="background:var(--bull)"></div> Bullish</div>
+  <div class="legend-item"><div class="dot" style="background:var(--bear)"></div> Bearish</div>
+  <div class="legend-item"><div class="dot" style="background:var(--warn)"></div> Caution / Trap</div>
+  <div class="legend-item"><div class="dot" style="background:var(--neutral)"></div> Neutral / Watch</div>
+</div>
+
+<!-- TRENDING -->
+<div class="section-title">// Trending — Confirmed Moves</div>
+<div class="grid">
+
+  <div class="card bull" data-oi="up" data-cvd="up" data-price="up">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bull">Strong Long</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Making higher highs</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising with price</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New contracts opening</span></div>
+    </div>
+    <h3>Aggressive longs entering, trend confirmed</h3>
+    <p>New money is entering the market. Buyers are aggressive (lifting the ask). CVD confirms price — the move has real conviction behind it.</p>
+    <div class="outcome bull">→ Trust the uptrend. Look for long entries on pullbacks.</div>
+  </div>
+
+  <div class="card bear" data-oi="up" data-cvd="down" data-price="down">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge bear">Strong Short</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">Making lower lows</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling with price</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New contracts opening</span></div>
+    </div>
+    <h3>Aggressive shorts entering, trend confirmed</h3>
+    <p>New money is entering short. Sellers are hitting the bid aggressively. CVD confirms price — genuine sell-side pressure driving the move.</p>
+    <div class="outcome bear">→ Trust the downtrend. Look for short entries on bounces.</div>
+  </div>
+
+</div>
+
+<!-- DIVERGENCE -->
+<div class="section-title">// Divergence — Question the Move</div>
+<div class="grid">
+
+  <div class="card bear" data-oi="up" data-cvd="down" data-price="up">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bear">Bearish Div.</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">New highs / rising</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling — sellers aggressive</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New longs trapped at top</span></div>
+    </div>
+    <h3>Price rising but sellers are the aggressor</h3>
+    <p>A large passive buyer is absorbing aggressive sells, propping price up. Retail is buying into distribution. Once the passive buyer steps away — price drops hard.</p>
+    <div class="outcome bear">→ Don't trust the rally. Watch for reversal. Shorts building.</div>
+  </div>
+
+  <div class="card bull" data-oi="up" data-cvd="up" data-price="down">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge bull">Bullish Div.</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">New lows / falling</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising — buyers aggressive</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New shorts getting trapped</span></div>
+    </div>
+    <h3>Price falling but buyers are the aggressor</h3>
+    <p>A large passive seller is pushing price down while aggressive buyers absorb. Smart money accumulating. Sellers are getting trapped — when passive selling stops, price surges.</p>
+    <div class="outcome bull">→ Don't trust the selloff. Watch for reversal. Longs accumulating.</div>
+  </div>
+
+</div>
+
+<!-- TRAPS -->
+<div class="section-title">// Traps — Classic Fakeouts</div>
+<div class="grid">
+
+  <div class="card warn" data-oi="up" data-cvd="down" data-price="flat">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="flat">→</span></div>
+      </div>
+      <span class="badge warn">Long Trap / CVD Leading Down</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow flat">→</span><span class="visual-desc">Flat / choppy at highs</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling — sellers aggressive</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">Longs piling in / supply building</span></div>
+    </div>
+    <h3>Retail buying a move with no conviction — or early warning</h3>
+    <p>Price appears stable or bouncing, but CVD is falling and sellers are aggressive. New longs are being trapped, or sell pressure is building under a calm surface. Either way — price follows CVD lower.</p>
+    <div class="outcome warn">→ Reduce longs. Wait for CVD to flatten then turn UP before trusting any bounce.</div>
+  </div>
+
+  <div class="card warn" data-oi="up" data-cvd="up" data-price="flat">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="flat">→</span></div>
+      </div>
+      <span class="badge warn">Short Trap / CVD Leading Up</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow flat">→</span><span class="visual-desc">Flat / choppy at lows</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising — buyers aggressive</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">Shorts adding / demand building</span></div>
+    </div>
+    <h3>Retail shorting a dip with no conviction — or early accumulation</h3>
+    <p>Price looks weak or sideways, but CVD is rising and buyers are aggressive. Shorts are getting trapped, or demand is quietly building before a move. Price will follow CVD higher.</p>
+    <div class="outcome warn">→ Cover shorts. Watch for CVD to break out — price breakout likely follows.</div>
+  </div>
+
+</div>
+
+<!-- EXHAUSTION -->
+<div class="section-title">// Exhaustion — Trend Running Out of Steam</div>
+<div class="grid">
+
+  <div class="card neutral" data-oi="down" data-cvd="down" data-price="up">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="down">↓</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge neutral">Weak Rally</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Still rising</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling — sellers dominate</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow down">↓</span><span class="visual-desc">Shorts closing (covering)</span></div>
+    </div>
+    <h3>Short covering rally — not real buying</h3>
+    <p>OI falling means shorts are closing, not new longs opening. Price rises from short covering, not genuine demand. CVD falling confirms no aggressive buyers. Move will fade.</p>
+    <div class="outcome neutral">→ Weak, unsustainable rally. Don't chase. Fade at resistance.</div>
+  </div>
+
+  <div class="card neutral" data-oi="down" data-cvd="up" data-price="down">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="down">↓</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge neutral">Weak Selloff</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">Still falling</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising — buyers dominate</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow down">↓</span><span class="visual-desc">Longs closing (exiting)</span></div>
+    </div>
+    <h3>Long liquidation selloff — not real selling</h3>
+    <p>OI falling means longs are exiting, not new shorts opening. Price drops from liquidation, not genuine supply. CVD rising shows buyers absorbing. Move will likely stabilize.</p>
+    <div class="outcome neutral">→ Weak, unsustainable selloff. Don't chase shorts. Watch for floor.</div>
+  </div>
+
+  <div class="card neutral" data-oi="down" data-cvd="flat" data-price="flat">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="down">↓</span></div>
+        <div class="ind">CVD <span class="flat">→</span></div>
+        <div class="ind">Price <span class="flat">→</span></div>
+      </div>
+      <span class="badge neutral">Unwinding</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow flat">→</span><span class="visual-desc">Going nowhere</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow flat">→</span><span class="visual-desc">Balanced — no aggressor</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow down">↓</span><span class="visual-desc">Positions being closed</span></div>
+    </div>
+    <h3>Market is unwinding — no new direction yet</h3>
+    <p>Both sides are closing positions. No aggressive buyer or seller. The market is digesting a previous move. Low conviction in either direction — wait for a new catalyst.</p>
+    <div class="outcome neutral">→ Stay flat. Wait for OI to rise again with a CVD direction.</div>
+  </div>
+
+</div>
+
+<!-- PRICE CONTEXT: NEW HIGHS -->
+<div class="section-title">// New High Context — Price Just Made New Highs</div>
+<div class="grid">
+
+  <div class="card bear" data-oi="up" data-cvd="down" data-price="up" data-ctx="newhigh">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bear">Distribution Top</span>
+    </div>
+    <span class="ctx-tag newhigh">↑ New High</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Just made new highs</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling — sellers hit every bid</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">Retail longs trapped at top</span></div>
+    </div>
+    <h3>Classic distribution — smart money selling into new highs</h3>
+    <p>Price at new highs but CVD is falling hard — sellers are aggressive at this level. Retail is chasing the breakout while institutions distribute into their excitement. The passive buyer propping price is almost done.</p>
+    <div class="outcome bear">→ High risk for longs. Watch for CVD to accelerate down — price reversal incoming.</div>
+  </div>
+
+  <div class="card bull" data-oi="up" data-cvd="up" data-price="up" data-ctx="newhigh">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bull">Confirmed Breakout</span>
+    </div>
+    <span class="ctx-tag newhigh">↑ New High</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Breaking out to new highs</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising — buyers aggressive at highs</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New money entering long</span></div>
+    </div>
+    <h3>Buyers still aggressive at the new high — breakout is real</h3>
+    <p>The most bullish context possible. Price is at highs AND buyers are still the aggressor. Nobody is distributing — CVD rising confirms genuine demand at these levels. This is a real breakout, not a fakeout.</p>
+    <div class="outcome bull">→ Trust the breakout. Look for continuation longs on any shallow retrace.</div>
+  </div>
+
+  <div class="card warn" data-oi="up" data-cvd="flat" data-price="up" data-ctx="newhigh">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="flat">→</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge warn">Stalling at Highs</span>
+    </div>
+    <span class="ctx-tag newhigh">↑ New High</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">At new highs but slowing</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow flat">→</span><span class="visual-desc">Flat — neither side dominant</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New positions opening</span></div>
+    </div>
+    <h3>Price at new highs but conviction is missing</h3>
+    <p>CVD going flat at new highs means aggressive buying has stalled. Neither buyers nor sellers are dominating. This is a decision point — it needs CVD to turn up to confirm continuation, or sellers will take control.</p>
+    <div class="outcome warn">→ Do not add to longs here. Wait. CVD turning up = continuation. CVD rolling over = reversal.</div>
+  </div>
+
+</div>
+
+<!-- PRICE CONTEXT: NEW LOWS -->
+<div class="section-title">// New Low Context — Price Just Made New Lows</div>
+<div class="grid">
+
+  <div class="card bull" data-oi="up" data-cvd="up" data-price="down" data-ctx="newlow">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge bull">Absorption Bottom</span>
+    </div>
+    <span class="ctx-tag newlow">↓ New Low</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">Just printed new lows</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising — buyers absorbing every sell</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">Shorts trapped, longs accumulating</span></div>
+    </div>
+    <h3>Buyers aggressive at new lows — classic absorption</h3>
+    <p>Price printed a new low but buyers immediately absorbed it aggressively. CVD rising at new lows is the strongest reversal signal. Shorts are being trapped. A passive seller is pushing price down while smart money accumulates below.</p>
+    <div class="outcome bull">→ Strong reversal signal. Watch for CVD to keep rising — price should follow sharply higher.</div>
+  </div>
+
+  <div class="card bear" data-oi="up" data-cvd="down" data-price="down" data-ctx="newlow">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge bear">Confirmed Breakdown</span>
+    </div>
+    <span class="ctx-tag newlow">↓ New Low</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">Breaking down to new lows</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling — sellers aggressive at lows</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New shorts entering</span></div>
+    </div>
+    <h3>Sellers still aggressive at new lows — breakdown is real</h3>
+    <p>The most bearish context possible. New lows AND sellers are still the aggressor. No absorption happening. CVD confirming price means this is a genuine breakdown, not a stop hunt. Continuation lower is likely.</p>
+    <div class="outcome bear">→ Trust the breakdown. Look for continuation shorts on any weak bounce.</div>
+  </div>
+
+  <div class="card warn" data-oi="up" data-cvd="flat" data-price="down" data-ctx="newlow">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="flat">→</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge warn">Stalling at Lows</span>
+    </div>
+    <span class="ctx-tag newlow">↓ New Low</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">At new lows but slowing</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow flat">→</span><span class="visual-desc">Flat — sellers losing momentum</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New positions opening</span></div>
+    </div>
+    <h3>Price at new lows but sell conviction is fading</h3>
+    <p>CVD going flat at new lows means sellers are losing their edge. The aggressive selling is pausing. This is a warning that the breakdown may be losing steam — a potential inflection point before absorption kicks in.</p>
+    <div class="outcome warn">→ Do not add to shorts here. Wait. CVD turning down = continuation. CVD curling up = reversal forming.</div>
+  </div>
+
+  <div class="card warn" data-oi="up" data-cvd="down" data-price="flat" data-ctx="newlow">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="flat">→</span></div>
+      </div>
+      <span class="badge warn">Trapped at Lows</span>
+    </div>
+    <span class="ctx-tag newlow">↓ New Low</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow flat">→</span><span class="visual-desc">Stopped falling — going sideways</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Still falling — sellers still aggressive</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New positions opening — longs trapped</span></div>
+    </div>
+    <h3>Price stabilised at lows but sellers haven't let go yet</h3>
+    <p>Price stopped making new lows but CVD is still falling — sellers are still the aggressor. A passive buyer is absorbing the sells and holding price flat, but they haven't overwhelmed the sellers yet. This is not a reversal — it's a pause. New longs entering here are getting trapped. The passive buyer could step away at any moment and price resumes lower.</p>
+    <div class="outcome warn">→ Do not go long. CVD must stop falling AND turn up before this is safe. Until then, sellers still in control.</div>
+  </div>
+
+</div>
+
+<!-- PRICE CONTEXT: BOUNCING -->
+<div class="section-title">// Bounce Context — Price Recovering After an Extreme</div>
+<div class="grid">
+
+  <div class="card bear" data-oi="up" data-cvd="down" data-price="up" data-ctx="bounce">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bear">Dead Cat Bounce</span>
+    </div>
+    <span class="ctx-tag bounce">↩ Bouncing</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Climbing off lows</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Still falling — sellers in control</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">Retail going long into bounce</span></div>
+    </div>
+    <h3>Price bouncing but sellers are still the aggressor</h3>
+    <p>Price is recovering off a low but CVD keeps falling — sellers are still hitting bids through the bounce. This is a passive buyer temporarily absorbing, not a real reversal. Retail is getting long into a trap. Price will roll back over.</p>
+    <div class="outcome bear">→ Do NOT trust this bounce. Wait for CVD to flatten and then turn up before any long entry.</div>
+  </div>
+
+  <div class="card bull" data-oi="up" data-cvd="up" data-price="up" data-ctx="bounce">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bull">Real Reversal</span>
+    </div>
+    <span class="ctx-tag bounce">↩ Bouncing</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Recovering strongly</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow up">↗</span><span class="visual-desc">Rising — buyers now aggressive</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow up">↑</span><span class="visual-desc">New longs entering with conviction</span></div>
+    </div>
+    <h3>Bounce confirmed — buyers have taken control</h3>
+    <p>Price bouncing AND CVD rising means aggressive buyers are driving the recovery — not just passive absorption. This is the confirmation you wait for after a new low. Sellers have exhausted, buyers are now in charge.</p>
+    <div class="outcome bull">→ This is the entry. CVD confirming the bounce = real reversal. Look for long entries.</div>
+  </div>
+
+  <div class="card warn" data-oi="down" data-cvd="down" data-price="up" data-ctx="bounce">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="down">↓</span></div>
+        <div class="ind">CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge warn">Short Cover Bounce</span>
+    </div>
+    <span class="ctx-tag bounce">↩ Bouncing</span>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Recovering off lows</span></div>
+      <div class="visual-row"><span class="visual-label">CVD</span><span class="arrow down">↘</span><span class="visual-desc">Falling — no real buying</span></div>
+      <div class="visual-row"><span class="visual-label">OI</span><span class="arrow down">↓</span><span class="visual-desc">Shorts closing — not new longs</span></div>
+    </div>
+    <h3>Bounce is just shorts covering — no genuine buyers</h3>
+    <p>OI falling means existing shorts are closing, not new longs opening. CVD still negative means no aggressive buying. The bounce is purely mechanical — shorts taking profit. Once they're done covering, price stalls and rolls back.</p>
+    <div class="outcome warn">→ Weak, temporary bounce. No real buyer conviction behind it. Fade at resistance.</div>
+  </div>
+
+</div>
+
+<!-- SPOT vs FUTURES CVD DIVERGENCE -->
+<div class="section-title">// Spot vs Futures CVD — Smart Money vs Speculation</div>
+<div class="grid">
+
+  <div class="card bull" data-oi="up" data-cvd="down" data-price="down" data-scvd="up">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">Futures CVD <span class="down">↓</span></div>
+        <div class="ind">Spot CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge bull">Smart Money Buys</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">Falling / weak</span></div>
+      <div class="visual-row"><span class="visual-label">Spot CVD</span><span class="arrow up">↗</span><span class="visual-desc">Real buyers accumulating</span></div>
+      <div class="visual-row"><span class="visual-label">Fut CVD</span><span class="arrow down">↘</span><span class="visual-desc">Retail shorting futures</span></div>
+    </div>
+    <h3>Institutions accumulating spot while retail shorts futures</h3>
+    <p>Spot CVD rising means real capital is buying the actual asset. Futures CVD falling means retail speculators are shorting. Smart money is accumulating into retail panic. When futures shorts get squeezed, spot buyers profit hard.</p>
+    <div class="outcome bull">→ Strongly bullish medium-term. Real demand building. Retail shorts are fuel for the next rally.</div>
+  </div>
+
+  <div class="card bear" data-oi="up" data-cvd="up" data-price="up" data-scvd="down">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">Futures CVD <span class="up">↑</span></div>
+        <div class="ind">Spot CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bear">Smart Money Sells</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Rising / looks strong</span></div>
+      <div class="visual-row"><span class="visual-label">Spot CVD</span><span class="arrow down">↘</span><span class="visual-desc">Real sellers distributing</span></div>
+      <div class="visual-row"><span class="visual-label">Fut CVD</span><span class="arrow up">↗</span><span class="visual-desc">Retail chasing longs</span></div>
+    </div>
+    <h3>Institutions distributing spot while retail longs futures</h3>
+    <p>Spot CVD falling means real capital is selling the actual asset — distribution. Futures CVD rising means retail is FOMO-buying into the move. Smart money is unloading into retail excitement. Classic top formation.</p>
+    <div class="outcome bear">→ Strongly bearish medium-term. Distribution into retail FOMO. When retail longs get flushed, drop accelerates.</div>
+  </div>
+
+  <div class="card bull" data-oi="up" data-cvd="up" data-price="up" data-scvd="up">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">Futures CVD <span class="up">↑</span></div>
+        <div class="ind">Spot CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bull">Full Conviction Bull</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Rising with momentum</span></div>
+      <div class="visual-row"><span class="visual-label">Spot CVD</span><span class="arrow up">↗</span><span class="visual-desc">Real demand — asset accumulation</span></div>
+      <div class="visual-row"><span class="visual-label">Fut CVD</span><span class="arrow up">↗</span><span class="visual-desc">Speculative longs aligned</span></div>
+    </div>
+    <h3>Both real buyers and speculators aligned — strongest bull signal</h3>
+    <p>When spot CVD and futures CVD both rise together, real capital and leveraged speculation are pointing the same direction. Nobody is distributing. The move has both genuine demand and momentum behind it — the highest-quality bullish setup.</p>
+    <div class="outcome bull">→ Highest conviction long. Both markets confirm — trust the move.</div>
+  </div>
+
+  <div class="card bear" data-oi="up" data-cvd="down" data-price="down" data-scvd="down">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">Futures CVD <span class="down">↓</span></div>
+        <div class="ind">Spot CVD <span class="down">↓</span></div>
+        <div class="ind">Price <span class="down">↓</span></div>
+      </div>
+      <span class="badge bear">Full Conviction Bear</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow down">↘</span><span class="visual-desc">Falling with momentum</span></div>
+      <div class="visual-row"><span class="visual-label">Spot CVD</span><span class="arrow down">↘</span><span class="visual-desc">Real selling — asset distribution</span></div>
+      <div class="visual-row"><span class="visual-label">Fut CVD</span><span class="arrow down">↘</span><span class="visual-desc">Speculative shorts aligned</span></div>
+    </div>
+    <h3>Both real sellers and speculators aligned — strongest bear signal</h3>
+    <p>Spot CVD and futures CVD falling together means real capital and leveraged speculation are both selling. No absorption anywhere. Genuine supply meeting speculative pressure — the highest-quality bearish setup.</p>
+    <div class="outcome bear">→ Highest conviction short. Both markets confirm — trust the move down.</div>
+  </div>
+
+  <div class="card neutral" data-oi="up" data-cvd="up" data-price="up" data-scvd="flat">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="up">↑</span></div>
+        <div class="ind">Futures CVD <span class="up">↑</span></div>
+        <div class="ind">Spot CVD <span class="flat">→</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge neutral">Speculative Rally</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Rising on momentum</span></div>
+      <div class="visual-row"><span class="visual-label">Spot CVD</span><span class="arrow flat">→</span><span class="visual-desc">No real demand behind it</span></div>
+      <div class="visual-row"><span class="visual-label">Fut CVD</span><span class="arrow up">↗</span><span class="visual-desc">Speculators driving the move</span></div>
+    </div>
+    <h3>Rally driven by futures speculation — spot buyers not participating</h3>
+    <p>Futures traders are pushing price up but spot CVD is flat — nobody is actually buying the asset. This is a leverage-driven move with no real demand underneath. Susceptible to sharp reversal when leveraged longs get flushed.</p>
+    <div class="outcome neutral">→ Treat with caution. No real demand backing it. Watch for spot CVD to confirm or price to reverse hard.</div>
+  </div>
+
+  <div class="card bull" data-oi="flat" data-cvd="flat" data-price="up" data-scvd="up">
+    <div class="card-header">
+      <div class="indicators">
+        <div class="ind">OI <span class="flat">→</span></div>
+        <div class="ind">Futures CVD <span class="flat">→</span></div>
+        <div class="ind">Spot CVD <span class="up">↑</span></div>
+        <div class="ind">Price <span class="up">↑</span></div>
+      </div>
+      <span class="badge bull">Organic Accumulation</span>
+    </div>
+    <div class="visual">
+      <div class="visual-row"><span class="visual-label">Price</span><span class="arrow up">↗</span><span class="visual-desc">Slowly rising</span></div>
+      <div class="visual-row"><span class="visual-label">Spot CVD</span><span class="arrow up">↗</span><span class="visual-desc">Real buyers accumulating steadily</span></div>
+      <div class="visual-row"><span class="visual-label">Fut CVD</span><span class="arrow flat">→</span><span class="visual-desc">Speculators neutral / not involved</span></div>
+    </div>
+    <h3>Real demand building without speculative noise</h3>
+    <p>Spot CVD rising while futures CVD stays flat means real buyers are accumulating the asset with no speculative participation. This is the cleanest, most sustainable type of upside — organic demand, not leverage. Slower but far more reliable.</p>
+    <div class="outcome bull">→ High quality setup. Real demand, no leverage froth. Sustainable move — add on dips.</div>
+  </div>
+
+</div>
+
+<footer>
+  OI = Open Interest &nbsp;·&nbsp; CVD = Cumulative Volume Delta (Futures) &nbsp;·&nbsp; Spot CVD = Real market demand &nbsp;·&nbsp; ↑ Up &nbsp;·&nbsp; ↓ Down &nbsp;·&nbsp; → Flat
+</footer>
+
+<script>
+  const state = { oi: null, cvd: null, price: null, ctx: null, scvd: null };
+
+  // All cards as a stable array we can query against
+  function allCards() { return Array.from(document.querySelectorAll('.card')); }
+
+  // Given a partial state, return the set of values that still have at least one matching card
+  function viableValues(indicator) {
+    const viable = new Set();
+    const candidates = ['up','down','flat','newhigh','newlow','bounce','none'];
+    for (const val of candidates) {
+      const test = Object.assign({}, state, { [indicator]: val });
+      const hasMatch = allCards().some(card => cardSurvives(card, test));
+      if (hasMatch) viable.add(val);
+    }
+    return viable;
+  }
+
+  // Check if a card survives a given partial state (unset fields are ignored)
+  function cardSurvives(card, s) {
+    if (s.oi    && card.dataset.oi    !== s.oi)    return false;
+    if (s.cvd   && card.dataset.cvd   !== s.cvd)   return false;
+    if (s.price && card.dataset.price !== s.price) return false;
+
+    // scvd: only filter if card explicitly has data-scvd AND user selected something
+    if (s.scvd) {
+      const cardScvd = card.dataset.scvd || null;
+      if (cardScvd && cardScvd !== s.scvd) return false;
+      // if card has no data-scvd (generic cards), it always passes scvd filter
+    }
+
+    // ctx
+    if (s.ctx && s.ctx !== 'none') {
+      if ((card.dataset.ctx || null) !== s.ctx) return false;
+    } else if (s.ctx === 'none') {
+      if (card.dataset.ctx) return false;
+    }
+
+    return true;
+  }
+
+  function updateButtonAvailability() {
+    const groups = [
+      { id: 'grp-oi',    key: 'oi',    vals: ['up','down','flat'] },
+      { id: 'grp-cvd',   key: 'cvd',   vals: ['up','down','flat'] },
+      { id: 'grp-price', key: 'price', vals: ['up','down','flat'] },
+      { id: 'grp-scvd',  key: 'scvd',  vals: ['up','down','flat'] },
+      { id: 'grp-ctx',   key: 'ctx',   vals: ['newhigh','newlow','bounce','none'] },
+    ];
+
+    for (const group of groups) {
+      const viable = viableValues(group.key);
+      const el = document.getElementById(group.id);
+      el.querySelectorAll('button').forEach(btn => {
+        const val = btn.dataset.val;
+        const isSelected = state[group.key] === val;
+        const isViable = viable.has(val);
+
+        if (isSelected) {
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        } else if (!isViable) {
+          btn.style.opacity = '0.25';
+          btn.style.pointerEvents = 'none';
+        } else {
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+        }
+      });
+    }
+
+    // Live card filtering — dim cards that don't survive current partial selection
+    const anySelected = state.oi || state.cvd || state.price || state.ctx || state.scvd;
+    allCards().forEach(card => {
+      if (!anySelected) {
+        card.classList.remove('dimmed', 'highlighted');
+        return;
+      }
+      const survives = cardSurvives(card, state);
+      if (survives) {
+        card.classList.remove('dimmed');
+      } else {
+        card.classList.remove('highlighted');
+        card.classList.add('dimmed');
+      }
+    });
+  }
+
+  function select(indicator, val, btn) {
+    // Toggle off if already selected
+    if (state[indicator] === val) {
+      state[indicator] = null;
+      btn.className = '';
+    } else {
+      state[indicator] = val;
+      const group = document.getElementById('grp-' + indicator);
+      group.querySelectorAll('button').forEach(b => b.className = '');
+      btn.className = 'active-' + val;
+    }
+    // Clear any previous lookup result banner
+    const banner = document.getElementById('result-banner');
+    banner.className = 'result-banner';
+    banner.textContent = '';
+    updateButtonAvailability();
+  }
+
+  function lookup() {
+    const { oi, cvd, price, ctx, scvd } = state;
+    const cards = document.querySelectorAll('.card');
+    const banner = document.getElementById('result-banner');
+
+    if (!oi || !cvd || !price) {
+      banner.className = 'result-banner show none';
+      banner.textContent = '⚠  Please select a value for OI, CVD, and Price first.';
+      cards.forEach(c => c.classList.remove('dimmed', 'highlighted'));
+      return;
+    }
+
+    let matched = [];
+
+    cards.forEach(card => {
+      const survives = cardSurvives(card, state);
+      if (survives) {
+        matched.push(card);
+        card.classList.remove('dimmed');
+        card.classList.add('highlighted');
+      } else {
+        card.classList.add('dimmed');
+        card.classList.remove('highlighted');
+      }
+    });
+
+    if (matched.length === 0) {
+      banner.className = 'result-banner show none';
+      banner.textContent = '// No mapped scenario for this combination. May be rare or context-dependent.';
+    } else {
+      const type = matched[0].classList.contains('bull') ? 'bull'
+                 : matched[0].classList.contains('bear') ? 'bear'
+                 : matched[0].classList.contains('warn') ? 'warn' : 'neutral';
+      const icons = { bull: '▲', bear: '▼', warn: '⚠', neutral: '◆' };
+      const labels = matched.map(m => m.querySelector('.badge').textContent).join(' · ');
+      banner.className = `result-banner show ${type}`;
+      banner.textContent = `${icons[type]}  ${matched.length} scenario${matched.length > 1 ? 's' : ''} matched — ${labels}`;
+      matched[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function reset() {
+    state.oi = null; state.cvd = null; state.price = null; state.ctx = null; state.scvd = null;
+    document.querySelectorAll('.btn-group button').forEach(b => {
+      b.className = '';
+      b.style.opacity = '1';
+      b.style.pointerEvents = 'auto';
+    });
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('dimmed', 'highlighted'));
+    const banner = document.getElementById('result-banner');
+    banner.className = 'result-banner';
+    banner.textContent = '';
+  }
+</script>
+
+</body>
+</html>
